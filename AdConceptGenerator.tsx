@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
 const techniques = [
-  // ... same list of techniques as before
+  // ...same as before (unchanged for brevity)
 ];
 
 async function fetchAdConcept(technique, brief) {
@@ -40,6 +40,17 @@ export default function AdConceptGenerator() {
     setConcepts(updated);
   };
 
+  const exportToPDF = async () => {
+    const content = techniques.map((technique, idx) => `\n\n${technique.name}\n${technique.description}\n\n${concepts[idx]}`).join("\n\n---\n");
+    const blob = new Blob([content], { type: 'application/pdf' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'ad-concepts.pdf';
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="p-6 space-y-6">
       <header className="sticky top-0 bg-white z-10 shadow-sm py-4">
@@ -49,9 +60,14 @@ export default function AdConceptGenerator() {
           placeholder="Enter your creative brief here..."
           className="w-full"
         />
-        <Button onClick={generateConcepts} disabled={loading} className="mt-2">
-          {loading ? "Generating..." : "Submit Brief & Generate Concepts"}
-        </Button>
+        <div className="flex gap-4 mt-2">
+          <Button onClick={generateConcepts} disabled={loading}>
+            {loading ? "Generating..." : "Submit Brief & Generate Concepts"}
+          </Button>
+          <Button variant="secondary" onClick={exportToPDF} disabled={concepts.every(c => !c)}>
+            📄 Export All to PDF
+          </Button>
+        </div>
       </header>
 
       {techniques.map((technique, idx) => (
